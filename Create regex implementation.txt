@@ -1,0 +1,107 @@
+User
+Need kotlin fun that successfully meets requirements below:
+
+This regular expression should validate the maximum string length (passed as parameter); it should return a match if the string length is within the acceptable range and a non-match if it is not.
+
+This regular expression should also validate that the string contains at least one uppercase letter, one lowercase letter, one digit, and one special character from a predefined list: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~. It should return a match if the criteria are met and a non-match if they are not.
+
+This regular expression should validate that the string does not contain any whitespace characters (spaces, tabs, or newlines). This should return a non-match if any whitespace characters are found.
+
+The regular expression should be optimized for execution speed and simplicity. The regular expression should still fulfill all the above criteria.
+
+The regular expression should be tested in code on a variety of sample inputs and edge cases (10) to ensure the regex is functioning properly.
+
+The regular expression should be implemented within the code in a way that it can be easily reused for various inputs.
+
+Implementation should not introduce any unexpected behavior or bugs.
+
+Clear and concise documentation should be provided for the regular expression, explaining how it works, and any caveats or limitations.
+ChatGPT
+Let's start by building the regular expression:
+
+^ - asserts position at the start of a line.
+(?=.*[A-Z]) - positive lookahead to ensure at least one uppercase letter.
+(?=.*[a-z]) - positive lookahead to ensure at least one lowercase letter.
+(?=.*\d) - positive lookahead to ensure at least one digit.
+(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_{|}~])` - positive lookahead to ensure at least one special character from the predefined list.
+(?!.*\s) - negative lookahead to ensure no whitespace characters.
+.{1,max} - matches any character (except newline) between 1 and max times where max will be replaced by the passed length.
+$ - asserts position at the end of a line.
+Here's a Kotlin function implementing the above requirements:
+
+kotlin
+Copy code
+fun isValidString(input: String, maxLength: Int): Boolean {
+    val regex = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])(?!.*\s).{1,$maxLength}$""".toRegex()
+    return regex.matches(input)
+}
+
+fun main() {
+    // Sample inputs and edge cases
+    val tests = listOf(
+        "Aa1!",          // valid
+        "Aa1!  ",        // invalid (spaces)
+        "Aa!",           // invalid (no digit)
+        "aa1!",          // invalid (no uppercase)
+        "AA1!",          // invalid (no lowercase)
+        "Aa1",           // invalid (no special char)
+        "A"*50 + "a1!",  // invalid (over max length)
+        "Aa1!@#",        // valid
+        "A\na1!",        // invalid (newline)
+        "Aa\t1!"         // invalid (tab)
+    )
+
+    tests.forEach {
+        println("Input '$it' is ${if (isValidString(it, 10)) "valid" else "invalid"}")
+    }
+}
+Documentation:
+
+The regex starts by ensuring that we have at least one of each required character using positive lookaheads.
+To ensure no whitespace, a negative lookahead is used to match any whitespace character and negate the result.
+The actual matching is done by .{1,max}, which ensures that the string length is between 1 and the maximum length.
+Note: This regex works for ASCII characters. If your input can contain Unicode or non-ASCII characters, the behavior might be different. Adjustments may be necessary.
+
+
+
+User
+there is error - java.util.regex.PatternSyntaxException: Missing closing bracket in character class near index 87
+                                                                                                    ^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])(?!.*\s).{1,10}$
+ChatGPT
+I apologize for the oversight. The problem lies in the way the backslashes are treated in the regular expression string and how some characters within square brackets in the regex pattern act.
+
+The character class [...] is conflicting with some of the characters that need to be escaped.
+
+To fix this:
+
+Escape the backslashes inside the string.
+Specifically, ] and - within square brackets can be problematic. We'll move the - to the start or end of the character class, and we'll escape the ].
+Here's the corrected regex:
+
+kotlin
+Copy code
+val regex = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])(?!.*\s).{1,$maxLength}$""".toRegex()
+Now you can replace the previous regex initialization with the above corrected one, and the rest of the code should work as expected.
+
+
+
+
+User
+PatternSyntaxException: Missing closing bracket in character class near index 89
+                                                                                                    ^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~])(?!.*\s).{1,10}$
+ChatGPT
+I apologize for the inconvenience.
+
+The character causing the issue here is the unescaped ]. Let's fix that:
+
+Here's the corrected regex:
+
+kotlin
+Copy code
+val regex = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@\[\\\]^_`{|}~])(?!.*\s).{1,$maxLength}$""".toRegex()
+I've made sure to escape the ] within the character class by using \[ and \\]. This should resolve the PatternSyntaxException error.
+
+
+
+
+
