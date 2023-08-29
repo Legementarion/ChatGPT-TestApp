@@ -1,0 +1,169 @@
+Here criteria -
+This regular expression should validate the maximum string length (passed as parameter); it should return a match if the string length is within the acceptable range and a non-match if it is not.
+
+This regular expression should also validate that the string contains at least one uppercase letter, one lowercase letter, one digit, and one special character from a predefined list: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~. It should return a match if the criteria are met and a non-match if they are not.
+
+This regular expression should validate that the string does not contain any whitespace characters (spaces, tabs, or newlines). This should return a non-match if any whitespace characters are found.
+
+The regular expression should be optimized for execution speed and simplicity. The regular expression should still fulfill all the above criteria.
+
+The regular expression should be tested in code on a variety of sample inputs and edge cases (10) to ensure the regex is functioning properly.
+
+need to - Create the subsequent Android test class and test functions responsible for testing the previously implemented regular expression implementation for the variety of sample inputs and edge cases: too short input, too long input, matching input length, missing uppercase, lowercase, special character, digit, excess whitespace characters in various positions.
+ChatGPT
+Alright, let's break this down step-by-step.
+
+Regular Expression:
+
+Max length: n (Passed as parameter)
+Contains at least:
+one uppercase letter: [A-Z]
+one lowercase letter: [a-z]
+one digit: \d
+one special character: [!"#$%&'()*+,-./:;<=>?@[\]^_{|}~]`
+No whitespace characters: \s
+Here's a regex that meets your criteria:
+
+regex
+Copy code
+^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])\S{1,n}$
+Replace n with the desired maximum length.
+
+Android Test Class:
+
+java
+Copy code
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class RegexTest {
+    // Max length is set to 15 for this example.
+    private static final String REGEX = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~])\\S{1,15}$";
+
+    @Test
+    public void testTooShortInput() {
+        assertFalse("aA1!".matches(REGEX));
+    }
+
+    @Test
+    public void testTooLongInput() {
+        assertFalse("aA1!aA1!aA1!aA1!".matches(REGEX));
+    }
+
+    @Test
+    public void testMatchingInputLength() {
+        assertTrue("Abc1234!".matches(REGEX));
+    }
+
+    @Test
+    public void testMissingUppercase() {
+        assertFalse("abc1234!".matches(REGEX));
+    }
+
+    @Test
+    public void testMissingLowercase() {
+        assertFalse("ABC1234!".matches(REGEX));
+    }
+
+    @Test
+    public void testMissingSpecialCharacter() {
+        assertFalse("Abc1234".matches(REGEX));
+    }
+
+    @Test
+    public void testMissingDigit() {
+        assertFalse("Abcdefg!".matches(REGEX));
+    }
+
+    @Test
+    public void testWhitespaceAtBeginning() {
+        assertFalse(" Abc1234!".matches(REGEX));
+    }
+
+    @Test
+    public void testWhitespaceInMiddle() {
+        assertFalse("Abc 1234!".matches(REGEX));
+    }
+
+    @Test
+    public void testWhitespaceAtEnd() {
+        assertFalse("Abc1234! ".matches(REGEX));
+    }
+}
+Make sure you have the JUnit library set up in your Android project to use the above testing framework. The tests include the edge cases and sample inputs that you mentioned.
+
+
+
+
+User
+I have a fun isValidString(input: String, maxLength: Int): Boolean so use it to test and I need kotlin code
+ChatGPT
+Got it. I'll integrate the regular expression into your function and use it in a Kotlin test class. Here's how you can do it:
+
+Function:
+kotlin
+Copy code
+fun isValidString(input: String, maxLength: Int): Boolean {
+    val regex = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\]^_`{|}~])\S{1,$maxLength}$""".toRegex()
+    return regex.matches(input)
+}
+Kotlin Test Class:
+kotlin
+Copy code
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class RegexTest {
+
+    @Test
+    fun testTooShortInput() {
+        assertFalse(isValidString("aA1!", 15))
+    }
+
+    @Test
+    fun testTooLongInput() {
+        assertFalse(isValidString("aA1!aA1!aA1!aA1!", 15))
+    }
+
+    @Test
+    fun testMatchingInputLength() {
+        assertTrue(isValidString("Abc1234!", 15))
+    }
+
+    @Test
+    fun testMissingUppercase() {
+        assertFalse(isValidString("abc1234!", 15))
+    }
+
+    @Test
+    fun testMissingLowercase() {
+        assertFalse(isValidString("ABC1234!", 15))
+    }
+
+    @Test
+    fun testMissingSpecialCharacter() {
+        assertFalse(isValidString("Abc1234", 15))
+    }
+
+    @Test
+    fun testMissingDigit() {
+        assertFalse(isValidString("Abcdefg!", 15))
+    }
+
+    @Test
+    fun testWhitespaceAtBeginning() {
+        assertFalse(isValidString(" Abc1234!", 15))
+    }
+
+    @Test
+    fun testWhitespaceInMiddle() {
+        assertFalse(isValidString("Abc 1234!", 15))
+    }
+
+    @Test
+    fun testWhitespaceAtEnd() {
+        assertFalse(isValidString("Abc1234! ", 15))
+    }
+}
+This Kotlin test class uses your isValidString function to validate various test scenarios. Adjust the 15 in the tests if you wish to use a different maxLength value for your tests. Ensure that you have set up JUnit in your project to execute these tests.
